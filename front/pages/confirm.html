@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Confirmation</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <script>
+        $(document).ready(function() {
+            // Extract token from URL
+            var urlParams = new URLSearchParams(window.location.search);
+            var token = urlParams.get('token');
+
+            // Make API request to confirm email
+            $.ajax({
+                url: '../../api/confirm',
+                type: 'GET',
+                data: { token: token },
+                success: function(response) {
+                    if (response.hasOwnProperty('message')) {
+                        if (response.message === "Email has been verified!") {
+                            alert(response.message);
+                            window.location.href = 'login.php';
+                        } else {
+                            // Display error message on the page
+                            var errorMessage = document.createElement('p');
+                            errorMessage.textContent = "Email verification failed! Please try again.";
+                            document.body.appendChild(errorMessage);
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseText);
+                    alert('An error occurred while confirming email.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

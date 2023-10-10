@@ -1,0 +1,9 @@
+{
+    "require": {
+        "mikecao/flight": "^2.0",
+        "giggsey/libphonenumber-for-php": "^8.13",
+        "firebase/php-jwt": "^6.5",
+        "phpmailer/phpmailer": "^6.8",
+        "spomky-labs/otphp": "^11.2"
+    }
+}

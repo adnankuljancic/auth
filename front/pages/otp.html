@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OTP Page</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body style="background-color: #f8f9fa;">
+    <div class="container">
+        <div class="row">
+          <div class="col-md-6 offset-md-3">
+            <div class="card mt-5">
+              <div class="card-body">
+                <h2 class="card-title text-center">OTP Verification</h2>
+                <div id="qrCodeContainer" class="text-center">
+                  <img id="qrCodeImage" class="img-fluid d-none" alt="QR Code">
+                </div>
+                <div id="otpCodeInputContainer" class="mt-3">
+                  <input type="text" id="otpCodeInput" class="form-control" placeholder="Enter OTP Code">
+                </div>
+                <div id="otpButtonContainer" class="mt-3">
+                  <button id="verifyOTPButton" class="btn btn-primary btn-block">Verify OTP</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Fetch the JWT token from localStorage
+      const token = localStorage.getItem('token');
+      var decodedToken = JSON.parse(atob(token.split('.')[1]));
+      var username = decodedToken.username;
+      var data = {
+            "username": username
+        };
+      // Make a POST request to check OTP status
+      $.ajax({
+        url: '../../api/check-otp',
+        type: 'POST',
+        data: JSON.stringify(data),
+        contentType: 'application/json',
+        dataType: 'json',
+        success: function(response) {
+            if (response.qr_code) {
+            // OTP is not verified, display the QR code
+            const qrCode = response.qr_code;
+            displayQRCode(qrCode);
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error(error);
+        },
+      });
+
+      // Function to display the QR code
+      function displayQRCode(qrCodeUrl) {
+        const qrCodeImage = document.getElementById('qrCodeImage');
+        qrCodeImage.classList.remove('d-none');
+        qrCodeImage.src = qrCodeUrl;
+      }
+
+      // Event listener for verifying OTP
+      const verifyOTPButton = document.getElementById('verifyOTPButton');
+      verifyOTPButton.addEventListener('click', function() {
+        const otpCodeInput = document.getElementById('otpCodeInput');
+        const otpCode = otpCodeInput.value;
+        const token = localStorage.getItem('token');
+        var decodedToken = JSON.parse(atob(token.split('.')[1]));
+        var username = decodedToken.username;
+        var data = {
+            'username': username,
+            'code': otpCode
+        };
+        // Make a POST request to verify OTP
+        $.ajax({
+          url: '../../api/otp',
+          method: 'POST',
+          data: JSON.stringify(data),
+          contentType: 'application/json',
+          dataType: 'json',
+          success: function(response) {
+            if (response.message === 'success') {
+              // OTP verification successful, redirect to index.html
+              window.location.href = 'sms.html';
+            } else {
+              // OTP verification failed, display error message
+              alert(response.message);
+            }
+          },
+          error: function(xhr, status, error) {
+            console.error(error);
+          },
+        });
+      });
+    });
+  </script>
+</body>
+</html>

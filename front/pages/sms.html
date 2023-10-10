@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SMS Verification</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body style="background-color: #f8f9fa;">
+    <div class="container">
+        <div class="row">
+          <div class="col-md-6 offset-md-3">
+            <div class="card mt-5">
+              <div class="card-body">
+                <h2 class="card-title text-center">SMS Verification</h2>
+                <div id="smsCodeContainer" class="text-center">
+                  <button id="sendSMSButton" class="btn btn-primary btn-block">Send SMS</button>
+                </div>
+                <div id="smsCodeInputContainer" class="mt-3">
+                  <input type="text" id="smsCodeInput" class="form-control" placeholder="Enter SMS Code">
+                </div>
+                <div id="verifySMSButtonContainer" class="mt-3">
+                  <button id="verifySMSButton" class="btn btn-primary btn-block">Verify SMS Code</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Fetch the JWT token from localStorage
+      const token = localStorage.getItem('token');
+      var decodedToken = JSON.parse(atob(token.split('.')[1]));
+      var username = decodedToken.username;
+
+      // Send SMS button click event
+      $('#sendSMSButton').click(function() {
+        $.ajax({
+          url: '../../api/sms',
+          type: 'POST',
+          data: JSON.stringify({ username: username }),
+          contentType: 'application/json',
+          dataType: 'json',
+          success: function(response) {
+            alert(response.message);
+          },
+          error: function(xhr, status, error) {
+            console.error(error);
+          }
+        });
+      });
+
+      // Verify SMS button click event
+      $('#verifySMSButton').click(function() {
+        const smsCode = $('#smsCodeInput').val();
+        $.ajax({
+          url: '../../api/check_sms',
+          type: 'POST',
+          data: JSON.stringify({ username: username, sms_code: smsCode }),
+          contentType: 'application/json',
+          dataType: 'json',
+          success: function(response) {
+            if (response.message === 'success') {
+              window.location.href = '../index.html';
+            } else {
+              alert(response.message);
+            }
+          },
+          error: function(xhr, status, error) {
+            console.error(error);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
